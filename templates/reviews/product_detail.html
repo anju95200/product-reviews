@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Product Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-100 h-64 object-cover rounded-lg mb-4">
+        {% else %}
+        <div class="w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
+            <span class="text-gray-500">No image available</span>
+        </div>
+        {% endif %}
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-2">{{ product.name }}</h1>
+        <p class="text-2xl font-semibold text-gray-800 mb-2">Rs. {{ product.price }}</p>
+        <p class="text-lg text-gray-600 mb-4">{{ product.description }}</p>
+        {% if product.other_details %}
+        <div class="mt-4">
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Other Details</h3>
+            <p class="text-gray-600">{{ product.other_details }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Reviews</h2>
+        {% for review in reviews %}
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center mb-2">
+                <div class="flex items-center">
+                    {% for _ in "12345" %}
+                    <svg class="w-5 h-5 {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-gray-300{% endif %}" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="text-gray-700 mb-2">{{ review.comment }}</p>
+            <p class="text-sm text-gray-500">By <span class="font-medium">{{ review.user.username }}</span> on {{ review.created_at|date:"F d, Y" }}</p>
+        </div>
+        {% empty %}
+        <p class="text-gray-600">No reviews yet. Be the first to share your thoughts!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Review Submission Form -->
+    {% if user.is_authenticated %}
+    <div class="bg-gradient-to-b from-gray-50 to-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">Submit a Review</h2>
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label for="{{ form.rating.id_for_label }}" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <svg class="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                    Rating
+                </label>
+                <div class="relative">
+                    {{ form.rating }}
+                    {% if form.rating.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.rating.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <label for="{{ form.comment.id_for_label }}" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                    <svg class="w-5 h-5 text-gray-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    Comment
+                </label>
+                <div class="relative">
+                    {{ form.comment }}
+                    {% if form.comment.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.comment.errors.as_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" class="w-auto px-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-md text-lg font-semibold hover:from-blue-700 hover:to-indigo-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300">Submit Your Review</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <p class="text-gray-600">Please <a href="{% url 'login' %}" class="text-blue-600 hover:underline">login</a> to submit a review.</p>
+    {% endif %}
+</div>
+{% endblock %}
