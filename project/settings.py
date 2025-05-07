@@ -1,11 +1,13 @@
-import environ
 from pathlib import Path
-
-env = environ.Env()
-environ.Env.read_env()
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '.env')  # This line must come after BASE_DIR
+
+# Now load values from .env
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=True)
 
